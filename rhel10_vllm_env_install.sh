@@ -4,8 +4,8 @@ set -e  # 出错立即停止
 echo ">>> [1/7] 正在配置 RHEL 10 EPEL 仓库..."
 sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm
 
-echo ">>> [2/7] 正在安装 Python 3.12, wget 及 sox..."
-sudo dnf install -y wget python3.12-pip python3.12-devel sox
+echo ">>> [2/7] 正在安装 Python 3.12, wget"
+sudo dnf install -y wget python3.12-pip python3.12-devel
 
 echo ">>> [3/7] 正在配置 NVIDIA CUDA 13.1 本地仓库 (RHEL 10)..."
 cd /tmp
