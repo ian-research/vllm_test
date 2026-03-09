@@ -22,9 +22,29 @@ echo ">>> [5/7] 正在安装 NVIDIA 驱动 (cuda-drivers)..."
 sudo dnf -y install cuda-drivers
 
 echo ">>> [6/7] 正在配置容器环境 (NVIDIA Container Toolkit)..."
-sudo dnf install -y nvidia-container-toolkit
-# 生成 RHEL 10 推荐的 CDI 规范文件
+
+# 1. 添加 NVIDIA 官方容器工具仓库 (在线源)
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+
+# 2. 设置并锁定版本
+export NVIDIA_CONTAINER_TOOLKIT_VERSION="1.18.2-1"
+
+# 3. 安装指定版本的工具及其依赖
+# 我们明确指定版本号，dnf 会自动处理 libnvidia-container1 等依赖
+sudo dnf install -y \
+    nvidia-container-toolkit-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+    nvidia-container-toolkit-base-${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+
+# 4. 生成 RHEL 10 推荐的 CDI 规范文件 (核心步骤)
+# RHEL 10 的 Podman 深度集成 CDI，这一步确保容器能正确识别 L40S
 sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+
+# 验证 CDI 是否成功生成设备条目
+if sudo nvidia-ctk cdi list | grep -q "nvidia.com/gpu=all"; then
+    echo "CDI 配置成功：已识别到 GPU 设备。"
+else
+    echo "警告：CDI 配置未发现设备，请重启后重新生成。"
+fi
 
 echo ">>> [7/7] 正在完成收尾工作..."
 # 针对 L40S 建议禁用 GSP 固件以提高 RHEL 10 上的稳定性 (可选，已包含)
