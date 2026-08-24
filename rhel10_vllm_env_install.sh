@@ -9,14 +9,14 @@ sudo dnf install -y wget python3.12-pip python3.12-devel
 
 echo ">>> [3/7] 正在配置 NVIDIA CUDA 13.1 本地仓库 (RHEL 10)..."
 cd /tmp
-wget -N https://developer.download.nvidia.com/compute/cuda/13.1.1/local_installers/cuda-repo-rhel10-13-1-local-13.1.1_590.48.01-1.x86_64.rpm
-sudo rpm -i cuda-repo-rhel10-13-1-local-13.1.1_590.48.01-1.x86_64.rpm
+wget -N https://developer.download.nvidia.com/compute/cuda/13.3.1/local_installers/cuda-repo-rhel10-13-3-local-13.3.1_610.43.02-1.x86_64.rpm
+sudo rpm -i cuda-repo-rhel10-13-3-local-13.3.1_610.43.02-1.x86_64.rpm
 sudo dnf clean all
 
 echo ">>> [4/7] 正在安装编译环境及 CUDA Toolkit..."
 # RHEL 10 必须有这些才能构建驱动内核模块
 sudo dnf install -y kernel-devel-matched gcc make
-sudo dnf -y install cuda-toolkit-13-1
+sudo dnf -y install cuda-toolkit-13-3
 
 echo ">>> [5/7] 正在安装 NVIDIA 驱动 (cuda-drivers)..."
 sudo dnf -y install cuda-drivers
@@ -27,13 +27,15 @@ echo ">>> [6/7] 正在配置容器环境 (NVIDIA Container Toolkit)..."
 curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
 
 # 2. 设置并锁定版本
-export NVIDIA_CONTAINER_TOOLKIT_VERSION="1.18.2-1"
+#export NVIDIA_CONTAINER_TOOLKIT_VERSION="1.18.2-1"
+
 
 # 3. 安装指定版本的工具及其依赖
 # 我们明确指定版本号，dnf 会自动处理 libnvidia-container1 等依赖
-sudo dnf install -y \
-    nvidia-container-toolkit-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-    nvidia-container-toolkit-base-${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+#sudo dnf install -y \
+#    nvidia-container-toolkit-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+#    nvidia-container-toolkit-base-${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+sudo dnf install -y nvidia-container-toolkit 
 
 # 4. 安装hf cli
 curl -LsSf https://hf.co/cli/install.sh | bash
